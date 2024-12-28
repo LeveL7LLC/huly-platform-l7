@@ -20,7 +20,6 @@ import core, {
   type DocChunk,
   type Domain,
   generateId,
-  getWorkspaceId,
   Hierarchy,
   MeasureMetricsContext,
   ModelDb,
@@ -90,16 +89,10 @@ describe('postgres operations', () => {
     }
 
     const mctx = new MeasureMetricsContext('', {})
-    const txStorage = await createPostgresTxAdapter(
-      mctx,
-      hierarchy,
-      dbUri,
-      {
-        ...getWorkspaceId(dbId),
-        uuid: dbUuid
-      },
-      model
-    )
+    const txStorage = await createPostgresTxAdapter(mctx, hierarchy, dbUri, {
+      uuid: dbUuid,
+      url: dbUri
+    }, model)
 
     // Put all transactions to Tx
     for (const t of txes) {
@@ -114,8 +107,8 @@ describe('postgres operations', () => {
       hierarchy,
       dbUri,
       {
-        ...getWorkspaceId(dbId),
-        uuid: dbUuid
+        uuid: dbUuid,
+        url: dbUri
       },
       model
     )
@@ -133,7 +126,6 @@ describe('postgres operations', () => {
         upload: async (domain: Domain, docs: Doc[]) => {},
         clean: async (domain: Domain, docs: Ref<Doc>[]) => {},
         loadModel: async () => txes,
-        getAccount: async () => ({}) as any,
         sendForceClose: async () => {}
       }
       return st

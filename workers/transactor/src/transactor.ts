@@ -1,6 +1,7 @@
 // Copyright © 2024 Huly Labs.
 
 import {
+  type Account,
   Branding,
   generateId,
   type Class,
@@ -10,7 +11,7 @@ import {
   type MeasureContext,
   type Ref,
   type Tx,
-  type WorkspaceIdWithUrl
+  type WorkspaceIds
 } from '@hcengineering/core'
 import { setMetadata } from '@hcengineering/platform'
 import { RPCHandler } from '@hcengineering/rpc'
@@ -108,8 +109,8 @@ export class Transactor extends DurableObject<Env> {
 
       this.sessionManager = createSessionManager(
         this.measureCtx,
-        (token: Token, pipeline: Pipeline, workspaceId: WorkspaceIdWithUrl, branding: Branding | null) =>
-          new ClientSession(token, pipeline, workspaceId, branding, false),
+        (token: Token, pipeline: Pipeline, account: Account, workspaceIds: WorkspaceIds, branding: Branding | null) =>
+          new ClientSession(token, pipeline, account, workspaceIds, branding, false),
         loadBrandingMap(), // TODO: Support branding map
         {
           pingTimeout: 10000,
@@ -133,7 +134,7 @@ export class Transactor extends DurableObject<Env> {
 
       // By design, all fetches to this durable object will be for the same workspace
       if (this.workspace === '') {
-        this.workspace = payload.workspace.name
+        this.workspace = payload.workspace
       }
 
       if (!(await this.handleSession(server, request, payload, token, sessionId))) {
@@ -193,7 +194,7 @@ export class Transactor extends DurableObject<Env> {
       remoteAddress: request.headers.get('CF-Connecting-IP') ?? '',
       userAgent: request.headers.get('user-agent') ?? '',
       language: request.headers.get('accept-language') ?? '',
-      email: token.email,
+      account: token.account,
       mode: token.extra?.mode,
       model: token.extra?.model
     }
@@ -245,7 +246,7 @@ export class Transactor extends DurableObject<Env> {
       remoteAddress: string
       userAgent: string
       language: string
-      email: string
+      account: string
       mode: any
       model: any
     }
@@ -367,7 +368,7 @@ export class Transactor extends DurableObject<Env> {
     }
     // By design, all fetches to this durable object will be for the same workspace
     if (this.workspace === '') {
-      this.workspace = token.workspace.name
+      this.workspace = token.workspace
     }
     return session.session
   }
@@ -383,7 +384,19 @@ export class Transactor extends DurableObject<Env> {
     const cs = this.createDummyClientSocket()
     try {
       const session = await this.makeRpcSession(rawToken, cs)
-      result = await session.findAllRaw(this.measureCtx, _class, query ?? {}, options ?? {})
+      const sessionCtx: ClientSessionCtx = {
+        ctx: this.measureCtx,
+        socialStringsToUsers: new Map(), // TODO: Implement
+        sendResponse: async (msg) => {
+          result = msg
+        },
+        // TODO: Inedeed, the pipeline doesn't return errors,
+        // it just logs them to console and return an empty result
+        sendError: async (msg, error) => {
+          result = { error: `${msg}`, status: `${error}` }
+        }
+      }
+      result = await session.findAllRaw(sessionCtx, _class, query ?? {}, options ?? {})
     } catch (error: any) {
       result = { error: `${error}` }
     } finally {
@@ -399,6 +412,7 @@ export class Transactor extends DurableObject<Env> {
       const session = await this.makeRpcSession(rawToken, cs)
       const sessionCtx: ClientSessionCtx = {
         ctx: this.measureCtx,
+        socialStringsToUsers: new Map(), // TODO: Implement
         sendResponse: async (msg) => {
           result = msg
         },
@@ -435,6 +449,7 @@ export class Transactor extends DurableObject<Env> {
       const session = await this.makeRpcSession(rawToken, cs)
       const sessionCtx: ClientSessionCtx = {
         ctx: this.measureCtx,
+        socialStringsToUsers: new Map(), // TODO: Implement
         sendResponse: async (msg) => {
           result = msg
         },

@@ -14,7 +14,7 @@
 //
 import type { IntlString, Plugin, StatusCode } from '@hcengineering/platform'
 import { plugin } from '@hcengineering/platform'
-import { Mixin, Version, type Rank } from '.'
+import { AccountRole, Mixin, Version, type Rank } from '.'
 import type {
   Account,
   AnyAttribute,
@@ -39,6 +39,7 @@ import type {
   MigrationState,
   Obj,
   Permission,
+  PersonId,
   PluginConfiguration,
   Ref,
   RefTo,
@@ -77,7 +78,15 @@ export const coreId = 'core' as Plugin
 /**
  * @public
  */
+// TODO: consider removing email?
 export const systemAccountEmail = 'anticrm@hc.engineering'
+export const systemAccountUuid = '1749089e-22e6-48de-af4e-165e18fbd2f9'
+export const systemAccount: Account = {
+  uuid: systemAccountUuid,
+  role: AccountRole.Owner,
+  primarySocialId: '',
+  socialIds: []
+}
 
 export default plugin(coreId, {
   class: {
@@ -106,7 +115,6 @@ export default plugin(coreId, {
     SpaceType: '' as Ref<Class<SpaceType>>,
     Role: '' as Ref<Class<Role>>,
     Permission: '' as Ref<Class<Permission>>,
-    Account: '' as Ref<Class<Account>>,
     Type: '' as Ref<Class<Type<any>>>,
     TypeString: '' as Ref<Class<Type<string>>>,
     TypeBlob: '' as Ref<Class<Type<Ref<Blob>>>>,
@@ -121,6 +129,7 @@ export default plugin(coreId, {
     TypeTimestamp: '' as Ref<Class<Type<Timestamp>>>,
     TypeDate: '' as Ref<Class<Type<Timestamp | Date>>>,
     TypeCollaborativeDoc: '' as Ref<Class<Type<MarkupBlobRef>>>,
+    TypePersonId: '' as Ref<Class<Type<string>>>,
     RefTo: '' as Ref<Class<RefTo<Doc>>>,
     ArrOf: '' as Ref<Class<ArrOf<Doc>>>,
     Enum: '' as Ref<Class<Enum>>,
@@ -158,8 +167,8 @@ export default plugin(coreId, {
     Workspace: '' as Ref<Space>
   },
   account: {
-    System: '' as Ref<Account>,
-    ConfigUser: '' as Ref<Account>
+    System: '' as PersonId,
+    ConfigUser: '' as PersonId
   },
   status: {
     ObjectNotFound: '' as StatusCode<{ _id: Ref<Doc> }>,
@@ -186,6 +195,7 @@ export default plugin(coreId, {
     Markup: '' as IntlString,
     CollaborativeDoc: '' as IntlString,
     MarkupBlobRef: '' as IntlString,
+    PersonId: '' as IntlString,
     Number: '' as IntlString,
     Boolean: '' as IntlString,
     Timestamp: '' as IntlString,

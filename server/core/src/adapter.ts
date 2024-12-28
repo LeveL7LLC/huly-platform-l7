@@ -14,6 +14,7 @@
 //
 
 import {
+  type WorkspaceIds,
   type Class,
   type Data,
   type Doc,
@@ -28,7 +29,7 @@ import {
   type Ref,
   type Tx,
   type TxResult,
-  type WorkspaceId
+  type WorkspaceUuid
 } from '@hcengineering/core'
 import { type StorageAdapter } from './storage'
 import type { ServerFindOptions } from './types'
@@ -103,7 +104,7 @@ export interface TxAdapter extends DbAdapter {
  * @public
  */
 export interface WorkspaceDestroyAdapter {
-  deleteWorkspace: (ctx: MeasureContext, workspace: WorkspaceId) => Promise<void>
+  deleteWorkspace: (ctx: MeasureContext, workspace: WorkspaceUuid, dataId?: string) => Promise<void>
 }
 
 /**
@@ -113,7 +114,7 @@ export type DbAdapterFactory = (
   ctx: MeasureContext,
   hierarchy: Hierarchy,
   url: string,
-  workspaceId: WorkspaceId,
+  workspaceId: WorkspaceIds,
   modelDb: ModelDb,
   storage?: StorageAdapter
 ) => Promise<DbAdapter>
