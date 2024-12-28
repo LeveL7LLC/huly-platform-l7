@@ -14,14 +14,7 @@
 // limitations under the License.
 -->
 <script lang="ts">
-  import {
-    Channel,
-    Person,
-    combineName,
-    getCurrentEmployee,
-    getFirstName,
-    getLastName
-  } from '@hcengineering/contact'
+  import { Channel, Person, combineName, getCurrentEmployee, getFirstName, getLastName } from '@hcengineering/contact'
   import { AccountRole, Ref, SocialIdType, getCurrentAccount, hasAccountRole } from '@hcengineering/core'
   import { AttributeEditor, createQuery, getClient } from '@hcengineering/presentation'
   import setting, { IntegrationType } from '@hcengineering/setting'
@@ -53,9 +46,15 @@
 
   let email: string | undefined
   $: if (editable) {
-    void client.findOne(contact.class.SocialIdentity, { attachedTo: object._id, attachedClass: object._class, type: SocialIdType.EMAIL }).then((si) => {
-      email = si?.value
-    })
+    void client
+      .findOne(contact.class.SocialIdentity, {
+        attachedTo: object._id,
+        attachedClass: object._class,
+        type: SocialIdType.EMAIL
+      })
+      .then((si) => {
+        email = si?.value
+      })
   }
 
   function setName (object: Person) {

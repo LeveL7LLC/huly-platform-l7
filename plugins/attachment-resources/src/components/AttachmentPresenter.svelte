@@ -54,8 +54,9 @@
     removable &&
     value !== undefined &&
     value.readonly !== true &&
-    (permissionsStore != null && ($permissionsStore.whitelist.has(value.space) ||
-      !$permissionsStore.ps[value.space]?.has(core.permission.ForbidDeleteObject)))
+    permissionsStore != null &&
+    ($permissionsStore.whitelist.has(value.space) ||
+      !$permissionsStore.ps[value.space]?.has(core.permission.ForbidDeleteObject))
 
   function iconLabel (name: string): string {
     const parts = `${name}`.split('.')

@@ -73,7 +73,6 @@ import {
   TypeNumber,
   TypeRef,
   TypeString,
-  TypePersonId,
   UX,
   TypeCollaborativeDoc,
   TypeMarkup,
